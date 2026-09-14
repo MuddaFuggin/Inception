@@ -15,6 +15,7 @@
 
 
 
+<hr style="border: 1px solid #844; margin: 60px 0;">
 
 # L'analogie :
 
@@ -25,8 +26,6 @@ VirtualBox (l'hyperviseur) : C'est l'émulateur qui fabrique un faux ordinateur 
 Le fichier .vdi : C'est le disque dur de ce faux ordinateur.
 
 
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 
 
@@ -46,6 +45,8 @@ ISO dl sur goinfre,
 toujours bien eteindre la VM avant de copier !
 
 
+<hr style="border: 1px solid #444; margin: 60px 0;">
+
 ### Le workflow idéal au quotidien
 
 # Goinfre est local, et run sur un SSD -> + rapide
@@ -63,8 +64,9 @@ Sgoinfre = stockage partagé sur le réseau : Il est accessible depuis n'importe
  		*Git pour les configs : Les Dockerfile, docker-compose.yml, scripts bash et fichiers .env doivent impérativement être versionnés sur ton dépôt Git (sans les mots de passe en clair pour la soutenance).*
 
 
+<hr style="border: 1px solid #444; margin: 60px 0;">
 
-# Ou se teouve le reel travail ?
+# Ou se trouve le reel travail ?
 
 *"ok. mais si JAMAIS mon dossier sur sgoinfre ET goinfre est efface, je perds mon travail ?"*
 
@@ -94,13 +96,28 @@ PDF
 Conserver l'image disque de la VM sur sgoinfre sert uniquement à s'épargner l'étape de réinstallation de l'OS invité, mais le véritable travail réside intégralement dans le dépôt Git.
 
 
+<hr style="border: 1px solid #444; margin: 60px 0;">
 
 >>>###### ---------------------------- SSH et SSH pour git ----------------------------  ######
 
+## 1. Droits Sudo
 
-## Installation de SUDO 
+```bash
+# Passer temporairement en root
+su -
 
-´´´apt update && apt install -y sudo curl git´´´
+# Installer sudo et ajouter l'utilisateur
+apt update && apt install -y sudo curl git
+usermod -aG sudo camille
+
+# Quitter root
+exit
+
+# Vérifier
+sudo whoami
+```
+
+---
 
 >> *apt update* met a jour la liste de paquets disponibles
 
@@ -112,11 +129,9 @@ Conserver l'image disque de la VM sur sgoinfre sert uniquement à s'épargner l'
 -y → répond automatiquement oui aux demandes de confirmation de apt
 
 
-´´´usermod -aG sudo csimonne´´´   
+>> *usermod -aG sudo csimonne*
 
 * csimonne(sic) est ajouté au groupe sudo, ce qui lui permettra d'utiliser sudo pour exécuter des commandes avec les droits administrateur.
-
-´´´exit´´´ (pour prendre en compte les changements)
 
 
 
@@ -129,13 +144,20 @@ usermod -aG sudo csimonne	Autorise csimonne à utiliser sudo
 >> su → je deviens root
 >> sudo → je reste moi-même, mais cette commande devient root.
 
+su  : change d’utilisateur, mais conserve une grande partie de l’environnement de l’utilisateur actuel.
+su - utilisateur : fait une connexion complète (login shell) en tant que l’utilisateur cible. Il charge notamment son environnement (HOME, PATH, etc.) et se place dans son répertoire personnel.
 
 
-## il faut SETUP le NETWORK dans ORACLE(vm)  -> settings
+<hr style="border: 1px solid #444; margin: 60px 0;">
+
+
+## 2. Il faut SETUP le NETWORK dans ORACLE(vm)  -> settings
 * SSH   TCP   127.0.0.1   2222   (laisse vide)   22
 
 
-## CONNECTION SSH et test
+<hr style="border: 1px solid #444; margin: 60px 0;">
+
+## 3. CONNECTION SSH et test
 
 * connection :
 `ssh -p 2222 username@127.0.0.1`
@@ -143,7 +165,9 @@ usermod -aG sudo csimonne	Autorise csimonne à utiliser sudo
 `echo "nimporte quoi"| wall`
 
 
-## CONNECTION SSH gitHUB
+<hr style="border: 1px solid #444; margin: 60px 0;">
+
+## 4. CONNECTION SSH gitHUB
 
 * `ssh-keygen -t ed25519 -C "ton_email@student.42.fr"`   +enter +enter ...
 * `cat ~/.ssh/id_ed25519.pub`       + COPY that Key
@@ -158,7 +182,10 @@ usermod -aG sudo csimonne	Autorise csimonne à utiliser sudo
 * `git clone git@github.com:MuddaFuggin/Inception.git && cd Inception`
 -> copie le dossier depuis Git, dans la Vm, avec son .git. && va dans ce dossier.
 
-# USE VSCODE
+
+<hr style="border: 1px solid #444; margin: 60px 0;">
+
+# 5. USE VSCODE
 
 La méthode standard : VS Code en "Remote - SSH"
 Si ton objectif est simplement de coder confortablement dans un vrai éditeur graphique sur ton hôte (plutôt que dans le terminal avec nano ou vim), c'est exactement ce que permet VS Code sans aucun problème de droits :
@@ -186,3 +213,69 @@ Appuie sur F1 (ou Cmd + Shift + P) et tape :
 Remote-SSH: Connect to Host...
 -> click on 'hotsname' (inception)
 -> in the new VS opened, setup the *Folder*
+
+
+
+
+<hr style="border: 1px solid #444; margin: 60px 0;">
+
+
+# Guide d'installation Docker engine et Docker compose
+
+>>  Docker Engine est le moteur d'exécution bas niveau, tandis que Docker Compose est le chef d'orchestre multi-conteneurs.
+
+| Outil | Rôle principal | Fonctionnement |
+| :--- | :--- | :--- |
+| **Docker Engine** | Créer et faire tourner les conteneurs individuellement | Démon d'arrière-plan (`dockerd`) qui gère les images, les volumes, le réseau et le cycle de vie de chaque conteneur via la CLI `docker run`, `docker build`, etc. |
+| **Docker Compose** | Coordonner plusieurs conteneurs ensemble | Outil de plus haut niveau qui lit un fichier YAML (`docker-compose.yml`) pour démarrer, lier et configurer l'ensemble de vos services (NGINX, WordPress, MariaDB) en une seule commande (`docker compose up`). |
+
+## 1. Clé GPG Docker
+
+```bash
+# Prérequis
+sudo apt install -y ca-certificates curl gnupg lsb-release
+
+# Création du dossier de clé
+sudo install -m 0755 -d /etc/apt/keyrings
+
+# Téléchargement de la clé
+sudo curl -fsSL [https://download.docker.com/linux/debian/gpg](https://download.docker.com/linux/debian/gpg) -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+```
+
+---
+
+## 2. Dépôt APT
+
+```bash
+# Ajout du dépôt officiel
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] [https://download.docker.com/linux/debian](https://download.docker.com/linux/debian) $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Vérification
+cat /etc/apt/sources.list.d/docker.list
+```
+
+---
+
+## 3. Installation de Docker & Compose
+
+```bash
+# Mise à jour et installation
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+---
+
+## 4. Droits Docker sans sudo
+
+```bash
+# Ajouter camille au groupe docker
+sudo usermod -aG docker camille
+
+# Actualiser la session
+newgrp docker
+
+# Validation
+docker --version && docker compose version
+```
