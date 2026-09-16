@@ -1,9 +1,49 @@
+# helper :
+
 camille
 camille
 su
 root
 su -
 camille
+
+************************************************************************************************
+
+## L'architecture
+
+À terme, ton architecture Inception ressemblera grosso modo à :
+
+                  docker-compose.yml
+                         │
+             ┌───────────┼───────────┐
+             ↓           ↓           ↓
+          MariaDB      WordPress     NGINX
+             │
+             ↓
+        Dockerfile
+             │
+       ┌─────┴──────┐
+       ↓            ↓
+  50-server.cnf  entrypoint.sh
+       │            │
+       ↓            ↓
+  configuration   initialisation
+                     │
+                     ↓
+                  MariaDB
+
+************************************************************************************************
+
+## Le lancement :
+
+### Pour nginx (Alpine)
+
+* Le Dockerfile est lu en premier pour construire l'image (il installe NGINX, copie le nginx.conf et l'entrypoint).
+* L'entrypoint.sh s'exécute ensuite au moment où le conteneur démarre (il génère le certificat SSL, puis lance NGINX).
+
+************************************************************************************************
+
+## l'installation :
 
 Par quoi commencer ?
 
@@ -66,7 +106,18 @@ Le projet déploie 3 services isolés (NGINX, WordPress, MariaDB) au sein d'une 
 
 <hr style="border: 1px solid #844; margin: 60px 0;">
 
-**Étape 1
-- .env cree
+** Étape 1
+- .env cree + nom de domaine au format login.42.fr. cree
 - .env.example cree
+- .env added to .gitignore !!
+
+** Étape 2
+
+ *On n'installe pas MariaDB directement sur la VM dans un dossier classique avec apt install dans votre terminal.*  [lien](R_dockerisation.md)
+
 - 
+- 
+- 
+
+
+** Étape 3

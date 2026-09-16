@@ -31,8 +31,6 @@ Voici le récapitulatif des étapes franchies jusqu'ici :
 * Assimilation du principe du projet : déployer des conteneurs légers et isolés (NGINX, MariaDB, WordPress) via Docker, orchestrés avec Docker Compose, le tout à l'intérieur d'une VM Debian pour bénéficier des privilèges `root` sans saturer ni risquer la session du cluster.
 
 
-
-
 2. **Choix de l'OS et de l'architecture :**
 * Vérification de l'architecture processeur du poste (`amd64`).
 * Téléchargement de l'image minimale d'installation Debian 13 (*netinst*) au format `.iso`.

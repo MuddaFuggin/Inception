@@ -279,3 +279,19 @@ newgrp docker
 # Validation
 docker --version && docker compose version
 ```
+
+
+
+
+
+
+
+
+
+
+blabla plein d autres trucs (la suite)
+
+
+## installation de 'Makefile' pour... utiliser makefile
+sudo apt update && sudo apt install -y make
+
