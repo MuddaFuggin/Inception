@@ -9,30 +9,120 @@ camille
 
 ************************************************************************************************
 
-## L'architecture
+## L'ARCHITECTURE
 
-À terme, ton architecture Inception ressemblera grosso modo à :
+### niveau projet
 
-                  docker-compose.yml
-                         │
-             ┌───────────┼───────────┐
-             ↓           ↓           ↓
-          MariaDB      WordPress     NGINX
-             │
-             ↓
-        Dockerfile
-             │
-       ┌─────┴──────┐
-       ↓            ↓
-  50-server.cnf  entrypoint.sh
-       │            │
-       ↓            ↓
-  configuration   initialisation
-                     │
-                     ↓
-                  MariaDB
+.
+├── Makefile
+├── secrets/
+│   ├── db_password.txt
+│   ├── db_password.txt
+│   └── others.txt
+└── srcs/
+    ├── docker-compose.yml
+    ├── .env
+    └── requirements/
+        ├── mariadb/
+        ├── nginx/
+        └── wordpress/
+
+### niveau VM, version simplifiee 
+
+
+					docker-compose.yml
+							│
+				┌───────────┼───────────┐
+				↓           ↓           ↓
+			MariaDB      WordPress     NGINX
+				│
+				↓
+			Dockerfile
+				│
+		┌─────┴──────┐
+		↓            ↓
+	50-server.cnf  entrypoint.sh
+		│            │
+		↓            ↓
+	configuration   initialisation
+						│
+						↓
+					MariaDB
+
+### niveau VM, version complete :
+
+									CLIENT / NAVIGATEUR
+											│
+											│ https://login.42.fr:443
+											▼
+	┌────────────────────────────────────────────────────────────────────────────────────────┐
+	│ HÔTE (Machine Virtuelle)                                                               │
+	│                                                                                        │
+	│                               docker-compose.yml                                       │
+	│                                       │                                                │
+	│                 ┌─────────────────────┼─────────────────────┐                          │
+	│                 ▼                     ▼                     ▼                          │
+	│        [srcs/requirements]   [srcs/requirements]   [srcs/requirements]                 │
+	│              mariadb/              wordpress/             nginx/                       │
+	│                 │                     │                     │                          │
+	│                 ▼                     ▼                     ▼                          │
+	│            Dockerfile            Dockerfile            Dockerfile                      │
+	│            50-server.cnf         www.conf              nginx.conf                      │
+	│            init_db.sh            wp_setup.sh           cert.crt / cert.key             │
+	│                 │                     │                     │                          │
+	│                 │ (build & up)        │ (build & up)        │ (build & up)             │
+	│                 ▼                     ▼                     ▼         				 │
+	│																					     │
+	│  ┌──────────────────────────────────────────────────────────────────────────────────┐  │
+	│  │ 							DOCKER BRIDGE NETWORK                	              │  │
+	│  │    interne -> les reseaux se parlent en prive, invisible au reste du monde.      │  │
+	│  │                       									                          │  │
+	│  │                                                                                  │  │
+	│  │                         							                              │  │
+	│  │  ┌─────────────────┐      FastCGI:9000      ┌─────────────────┐     Port 443     │  │
+	│  │  │    WordPress    │ ◄───────────────────── │      NGINX      │ ◄── (seule porte │  │
+	│  │  │   (PHP-FPM 8.2) │                        │   (TLS v1.2/1.3)│      d'entree,   │  │
+	│  │  └────────┬────────┘                        └─────────────────┘    ouverte sur   │  │
+	│  │           │  (PHP execute le site)                                  le monde)    │  │
+	│  │           │ Port 3306 (MySQL)                                                    │  │
+	│  │           ▼                                  (garde du corps : recoit le client  │  │
+	│  │  ┌─────────────────┐                          et lui repond)                     │  │
+	│  │  │     MariaDB     │                                                             │  │
+	│  │  │ (Serveur SQL)   │  le coffre fort : stocke les articles, comptes et mdp.      │  │
+	│  │  └────────┬────────┘                                                             │  │
+	│  │           │                               │                                      │  │
+	│  │           │                               │                                      │  │
+	│  └───────────┼───────────────────────────────┼──────────────────────────────────────┘  │
+	│              │                               │                                         │
+	│              ▼                               ▼                                         │
+	│     [Volume Persistant]             [Volume Persistant]                                │
+	│       /var/lib/mysql                  /var/www/html                                    │
+	│              ▲                               ▲                                         │
+	│              │ bind-mount                    │ bind-mount                              │
+	│              │                               │                                         │
+	│    /home/login/data/mariadb        /home/login/data/wordpress                          │
+	│																					     │
+	│  (Dossiers réels sur la VM : les données restent là  même si on éteint ou détruit les  │
+    │   conteneurs)                                                                          │
+	└────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+### Synthèse des flux et rôles :
+
+* NGINX (Seul point d'entrée) : Reçoit les requêtes HTTPS sécurisées sur le port 443. Il sert les fichiers statiques et transmet le code PHP via FastCGI (port 9000) au conteneur WordPress.
+
+* WordPress (PHP-FPM) : Exécute le moteur WordPress, installe le site et les utilisateurs avec wp-cli, et interroge la base de données via le port 3306.
+
+* MariaDB : Écoute en interne sur le port 3306. Initialisé par un script d'entrée (entrypoint.sh / init_db.sh) qui crée la base et les utilisateurs si elle n'existe pas encore.
+
+Persistance : Aucune donnée utile n'est stockée dans la couche éphémère des conteneurs ; tout réside sur la VM dans /home/login/data/.
+
 
 ************************************************************************************************
+<hr style="border: 1px solid #844; margin: 60px 0;">
+
+************************************************************************************************
+
 
 ## Le lancement :
 

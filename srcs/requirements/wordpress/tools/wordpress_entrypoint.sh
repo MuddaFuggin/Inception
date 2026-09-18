@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# Lecture des mots de passe depuis les secrets Docker
+MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+WP_PASSWORD=$(cat /run/secrets/wp_password)
+
 # Créer le dossier pour le socket PHP-FPM si besoin
 mkdir -p /run/php
 
