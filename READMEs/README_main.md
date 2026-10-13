@@ -119,7 +119,7 @@ Persistance : Aucune donnée utile n'est stockée dans la couche éphémère des
 
 
 ************************************************************************************************
-<hr style="border: 1px solid #844; margin: 60px 0;">
+<br>
 
 ************************************************************************************************
 
@@ -153,13 +153,13 @@ Par quoi commencer ?
  Les lier ensemble avec docker compose et un Makefile à la racine pour automatiser le tout (make up, make down, etc.).  
 
 
-<hr style="border: 1px solid #844; margin: 60px 0;">
+<br>
 
 
  >> Le projet Inception consiste à mettre en place une infrastructure web complète, sécurisée et isolée à l'aide de plusieurs conteneurs Docker orchestrés par un fichier docker-compose.yml.
 
 
-<hr style="border: 1px solid #844; margin: 60px 0;">
+<br>
 
 Le projet déploie 3 services isolés (NGINX, WordPress, MariaDB) au sein d'une machine virtuelle Debian. Chaque service est défini par son propre script d'installation (`Dockerfile`), transformé en moule (`Image`), puis instancié (`Conteneur`). Le tout est orchestré et relié par un fichier unique (`docker-compose.yml`).
 
@@ -194,7 +194,7 @@ Le projet déploie 3 services isolés (NGINX, WordPress, MariaDB) au sein d'une 
    * *Pourquoi :* Tout démarrer ou éteindre proprement en une seule commande (`make up`).
 
 
-<hr style="border: 1px solid #844; margin: 60px 0;">
+<br>
 
 ** Étape 1
 - .env cree + nom de domaine au format login.42.fr. cree

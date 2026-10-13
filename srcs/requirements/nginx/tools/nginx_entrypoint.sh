@@ -8,5 +8,5 @@ if [ ! -f /etc/nginx/ssl/inception.crt ]; then
         -subj "/C=FR/ST=Paris/L=Paris/O=42/OU=42Paris/CN=${DOMAIN_NAME}"
 fi
 
-# Lancement de NGINX au premier plan
+# Lancement de NGINX au premier plan (et pas en daemon : evite l'arret du PID (PID1))
 exec nginx -g "daemon off;"
