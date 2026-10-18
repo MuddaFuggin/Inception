@@ -6,7 +6,9 @@ MAKEFLAGS += --no-print-directory
 
 # ========================================================== #
 secure:
-	@if [ -f srcs/.env ]; then chmod 600 srcs/.env; 2>/dev/null || true; fi
+	@mkdir -p secrets
+	@if [ -f srcs/.env ]; then chmod 600 srcs/.env; fi
+	@if ls secrets/*.txt 1>/dev/null 2>&1; then chmod 600 secrets/*.txt; fi
 
 # for data path
 -include srcs/.env
