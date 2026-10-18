@@ -5,11 +5,13 @@ RESET   = \033[0m
 MAKEFLAGS += --no-print-directory
 
 # ========================================================== #
+secure:
+	@if [ -f srcs/.env ]; then chmod 600 srcs/.env; 2>/dev/null || true; fi
 
 # for data path
 -include srcs/.env
 
-all:
+all: secure
 	@mkdir -p $(DATA_PATH)/mariadb # because host dir must exist before docker starts
 	@mkdir -p $(DATA_PATH)/wordpress # because host dir must exist before docker starts
 	@printf "\n$(RED)===*^* 1. Composition of Docker will launch in ... *^*===$(RESET)\n\n"
